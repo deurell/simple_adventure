@@ -240,9 +240,13 @@ std::ostream &operator<<(std::ostream &os, const UseEffect &effect) {
     return os;
 }
 
+void printCurrentRoomDescription() {
+    std::cout << gameRooms[currentRoomID].description << std::endl;
+}
+
 int main() {
     loadGameData("map.json");
-
+    printCurrentRoomDescription();
     while (true) {
         std::cout << "What would you like to do?" << std::endl;
         std::string input;
