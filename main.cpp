@@ -39,11 +39,17 @@ struct Item {
     std::unordered_map<std::string, std::string> useEffects;
 };
 
+struct Character {
+    std::string name;
+    std::string dialogue;
+};
+
 struct Room {
     int id;
     std::string description;
     std::unordered_map<std::string, Path> paths;
     std::vector<Item> items;
+    std::vector<Character> characters;
 };
 
 struct GameData {
@@ -74,11 +80,23 @@ void from_json(const json &j, Item &i) {
     }
 }
 
+void from_json(const json &j, Character &c) {
+    j.at("name").get_to(c.name);
+    j.at("dialogue").get_to(c.dialogue);
+}
+
 void from_json(const json &j, Room &r) {
     j.at("id").get_to(r.id);
     j.at("description").get_to(r.description);
     j.at("paths").get_to(r.paths);
     j.at("items").get_to(r.items);
+
+    // Check if characters are defined in the JSON and, if so, parse them
+    if (j.contains("characters")) {
+        j.at("characters").get_to(r.characters);
+       // r.characters = j["characters"].get<std::vector<Character>>();
+    }
+
 }
 
 std::string resolveAlias(const std::string &command) {
@@ -116,9 +134,15 @@ void loadGameData(const std::string &filename) {
 
 void lookAround(const Room &room) {
     std::cout << room.description << std::endl;
+
+    for (const auto &character: room.characters) {
+        std::cout << character.name << " is here." << std::endl;
+    }
+
     for (const auto &item: room.items) {
         std::cout << "There's a " << item.name << " here." << std::endl;
     }
+
     for (const auto &path: room.paths) {
         std::cout << "You can go " << path.first << std::endl;
     }
@@ -194,6 +218,17 @@ void showInventory() {
     }
 }
 
+void talkToCharacter(const std::string &characterName) {
+    Room &currentRoom = gameRooms[currentRoomID];
+    for (const auto &character : currentRoom.characters) {
+        if (character.name == characterName) {
+            std::cout << characterName << ": \"" << character.dialogue << "\"" << std::endl;
+            return;
+        }
+    }
+    std::cout << characterName << " is not here." << std::endl;
+}
+
 void handleCommand(const std::string &rawCommand) {
     std::string command = resolveAlias(rawCommand);
     if (command == "look") {
@@ -230,6 +265,9 @@ void handleCommand(const std::string &rawCommand) {
     } else if (command.substr(0, 4) == "quit") {
         std::cout << "Goodbye!" << std::endl;
         exit(0);
+    } else if (command.substr(0, 7) == "talk to") {
+        std::string characterName = command.substr(8);
+        talkToCharacter(characterName);
     } else {
         std::cout << "I don't understand that command." << std::endl;
     }

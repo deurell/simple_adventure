@@ -3,7 +3,7 @@
   "rooms": [
     {
       "id": 1,
-      "description": "You are in a dimly lit stone chamber. The walls are cold to the touch, and the air is damp. To the north, you spot an old wooden door. In the center of the room, there's a mysterious chest that seems to have a keyhole.",
+      "description": "You are in the lobby of a luxurious hotel. To the north, you can see a doorway leading to a bar.",
       "paths": {
         "north": {
           "roomID": 2,
@@ -13,16 +13,22 @@
       "items": [
         {
           "name": "chest",
-          "description": "A large wooden chest with intricate designs. It's locked and seems to need a key.",
+          "description": "An ornate chest locked tightly. Looks like it needs a specific key.",
           "useEffects": {
-            "silver key": "The chest unlocks and inside you find treasures beyond your wildest dreams!"
+            "golden key": "The chest unlocks revealing a mysterious note."
           }
+        }
+      ],
+      "characters": [
+        {
+          "name": "Adriana",
+          "dialogue": "Isn't this hotel enchanting? I've heard there's a chest here that holds a secret. But you'll need a key to unveil it."
         }
       ]
     },
     {
       "id": 2,
-      "description": "You've entered a small room. It seems like a storage chamber of sorts. Old crates and dusty shelves line the walls. Sunlight pierces through a small crack in the ceiling. On a table in the corner, you notice a shiny silver key.",
+      "description": "You've stepped into the hotel's bar. The aroma of vintage wines fills the air, and there's a soft jazz playing in the background.",
       "paths": {
         "south": {
           "roomID": 1,
@@ -31,9 +37,15 @@
       },
       "items": [
         {
-          "name": "silver key",
-          "description": "A shiny silver key with intricate engravings on it.",
+          "name": "golden key",
+          "description": "A shiny golden key with intricate engravings, it seems special.",
           "useEffects": {}
+        }
+      ],
+      "characters": [
+        {
+          "name": "Rafael",
+          "dialogue": "Ah, the key! It has been in my family for generations. But, for you, I think I can part with it."
         }
       ]
     }
