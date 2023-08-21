@@ -22,7 +22,10 @@ std::unordered_map<std::string, std::string> commandAliases = {
         {"s", "go south"},
         {"e", "go east"},
         {"w", "go west"},
-        {"l", "look"}
+        {"l", "look"},
+        {"speak to", "talk to"},
+        {"speak", "talk to"},
+        {"talk", "talk to"}
 };
 
 struct Path {
@@ -101,10 +104,20 @@ void from_json(const json &j, Room &r) {
 }
 
 std::string resolveAlias(const std::string &command) {
-    if (commandAliases.find(command) != commandAliases.end()) {
-        return commandAliases[command];
+    for (const auto &entry : commandAliases) {
+        const std::string &alias = entry.first;
+        const std::string &actualCommand = entry.second;
+
+        // Check if the command starts with the alias followed by a space or end of line
+        if (command.substr(0, alias.size()) == alias &&
+            (command.size() == alias.size() || command[alias.size()] == ' ')) {
+
+            // Replace the alias part with the actual command and append the remaining part
+            return actualCommand + command.substr(alias.size());
+        }
     }
-    return command;
+
+    return command;  // If no alias matches, return the original command
 }
 
 void loadGameData(const std::string &filename) {
@@ -257,8 +270,16 @@ void handleCommand(const std::string &rawCommand) {
     } else if (command == "inventory") {
         showInventory();
     } else if (command.substr(0, 3) == "get") {
-        std::string itemName = command.substr(4);
-        getItem(itemName);
+        if (command.length() > 4) { // Ensure the command has more characters after "get "
+            std::string itemName = command.substr(4);
+            if (!itemName.empty()) {
+                getItem(itemName);
+            } else {
+                std::cout << "Get what exactly?" << std::endl;
+            }
+        } else {
+            std::cout << "Get what?" << std::endl;
+        }
     } else if (command.substr(0, 4) == "quit") {
         std::cout << "Goodbye!" << std::endl;
         exit(0);
