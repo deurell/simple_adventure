@@ -69,6 +69,13 @@ void from_json(const json &j, Room &r) {
     j.at("items").get_to(r.items);
 }
 
+std::string resolveAlias(const std::string& command) {
+    if (commandAliases.find(command) != commandAliases.end()) {
+        return commandAliases[command];
+    }
+    return command;
+}
+
 void loadGameData(const std::string &filename) {
     std::ifstream file(filename);
 
@@ -162,7 +169,8 @@ void showInventory() {
     }
 }
 
-void handleCommand(const std::string &command) {
+void handleCommand(const std::string &rawCommand) {
+    std::string command = resolveAlias(rawCommand);
     if (command == "look") {
         lookAround(gameRooms[currentRoomID]);
     } else if (command.substr(0, 3) == "use") {
