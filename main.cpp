@@ -8,8 +8,20 @@
 using json = nlohmann::json;
 
 std::unordered_map<std::string, std::string> commandAliases = {
-        {"pick up", "get"}
-};
+        {"pick up", "get"},
+        {"inv", "inventory"},
+        {"i", "inventory"},
+        {"move", "go"},
+        {"north", "go north"},
+        {"south", "go south"},
+        {"east", "go east"},
+        {"west", "go west"},
+        {"up", "go up"},
+        {"down", "go down"},
+        {"n", "go north"},
+        {"s", "go south"},
+        {"e", "go east"},
+        {"w", "go west"}};
 
 struct Path {
     int roomID;
@@ -69,7 +81,7 @@ void from_json(const json &j, Room &r) {
     j.at("items").get_to(r.items);
 }
 
-std::string resolveAlias(const std::string& command) {
+std::string resolveAlias(const std::string &command) {
     if (commandAliases.find(command) != commandAliases.end()) {
         return commandAliases[command];
     }
@@ -140,6 +152,19 @@ void getItem(const std::string &itemName) {
     std::cout << "There's no " << itemName << " here to pick up." << std::endl;
 }
 
+void dropItem(const std::string &itemName) {
+    Room &currentRoom = gameRooms[currentRoomID];
+    for (auto it = playerInventory.begin(); it != playerInventory.end(); ++it) {
+        if (it->name == itemName) {
+            currentRoom.items.push_back(*it);// Add the item to the room
+            std::cout << "You dropped the " << itemName << "." << std::endl;
+            playerInventory.erase(it);// Remove the item from the player's inventory
+            return;
+        }
+    }
+    std::cout << "You don't have a " << itemName << " in your inventory." << std::endl;
+}
+
 void useItem(const std::string &itemName) {
     if (auto itemIter = std::find_if(playerInventory.begin(), playerInventory.end(),
                                      [&itemName](const Item &item) { return item.name == itemName; });
@@ -184,7 +209,6 @@ void handleCommand(const std::string &rawCommand) {
         if (it != playerInventory.end()) {
             std::cout << "You used the " << itemToUse << "." << std::endl;
 
-            // Check if the current room has an interactable item (in this case, the chest)
             for (const auto &roomItem: gameRooms[currentRoomID].items) {
                 if (roomItem.useEffects.find(itemToUse) != roomItem.useEffects.end()) {
                     std::cout << roomItem.useEffects.at(itemToUse) << std::endl;
@@ -200,9 +224,12 @@ void handleCommand(const std::string &rawCommand) {
     } else if (command.substr(0, 3) == "get") {
         std::string itemName = command.substr(4);
         getItem(itemName);
-    } else if (command.substr(0, 4) == "use ") {
+    } else if (command.substr(0, 3) == "use") {
         std::string itemName = command.substr(4);
         useItem(itemName);
+    } else if (command.substr(0, 4) == "quit") {
+        std::cout << "Goodbye!" << std::endl;
+        exit(0);
     } else {
         std::cout << "I don't understand that command." << std::endl;
     }
