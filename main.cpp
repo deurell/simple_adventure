@@ -21,7 +21,9 @@ std::unordered_map<std::string, std::string> commandAliases = {
         {"n", "go north"},
         {"s", "go south"},
         {"e", "go east"},
-        {"w", "go west"}};
+        {"w", "go west"},
+        {"l", "look"}
+};
 
 struct Path {
     int roomID;
@@ -94,9 +96,8 @@ void from_json(const json &j, Room &r) {
     // Check if characters are defined in the JSON and, if so, parse them
     if (j.contains("characters")) {
         j.at("characters").get_to(r.characters);
-       // r.characters = j["characters"].get<std::vector<Character>>();
+        // r.characters = j["characters"].get<std::vector<Character>>();
     }
-
 }
 
 std::string resolveAlias(const std::string &command) {
@@ -220,7 +221,7 @@ void showInventory() {
 
 void talkToCharacter(const std::string &characterName) {
     Room &currentRoom = gameRooms[currentRoomID];
-    for (const auto &character : currentRoom.characters) {
+    for (const auto &character: currentRoom.characters) {
         if (character.name == characterName) {
             std::cout << characterName << ": \"" << character.dialogue << "\"" << std::endl;
             return;
@@ -231,13 +232,12 @@ void talkToCharacter(const std::string &characterName) {
 
 void handleCommand(const std::string &rawCommand) {
     std::string command = resolveAlias(rawCommand);
+
     if (command == "look") {
         lookAround(gameRooms[currentRoomID]);
     } else if (command.substr(0, 3) == "use") {
-        // Extracting the name of the item after "use "
         std::string itemToUse = command.substr(4);
 
-        // Checking if the item is in the player's inventory
         auto it = find_if(playerInventory.begin(), playerInventory.end(),
                           [itemToUse](const Item &item) { return item.name == itemToUse; });
 
@@ -259,19 +259,21 @@ void handleCommand(const std::string &rawCommand) {
     } else if (command.substr(0, 3) == "get") {
         std::string itemName = command.substr(4);
         getItem(itemName);
-    } else if (command.substr(0, 3) == "use") {
-        std::string itemName = command.substr(4);
-        useItem(itemName);
     } else if (command.substr(0, 4) == "quit") {
         std::cout << "Goodbye!" << std::endl;
         exit(0);
     } else if (command.substr(0, 7) == "talk to") {
-        std::string characterName = command.substr(8);
-        talkToCharacter(characterName);
+        if (command.length() > 8) {
+            std::string characterName = command.substr(8);
+            talkToCharacter(characterName);
+        } else {
+            std::cout << "You mutter to yourself, echoing the silence around you." << std::endl;
+        }
     } else {
         std::cout << "I don't understand that command." << std::endl;
     }
 }
+
 
 std::ostream &operator<<(std::ostream &os, const UseEffect &effect) {
     os << effect.message;// Print only the message by default
