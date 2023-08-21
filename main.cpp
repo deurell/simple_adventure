@@ -22,10 +22,7 @@ std::unordered_map<std::string, std::string> commandAliases = {
         {"s", "go south"},
         {"e", "go east"},
         {"w", "go west"},
-        {"l", "look"},
-        {"speak to", "talk to"},
-        {"speak", "talk to"},
-        {"talk", "talk to"}
+        {"l", "look"}
 };
 
 struct Path {
